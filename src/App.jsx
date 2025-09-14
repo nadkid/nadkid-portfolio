@@ -56,7 +56,7 @@ const NAV_ITEMS = [
 
 function PortfolioSite() {
   const [active, setActive] = useState("home");
-  const [rotation, setRotation] = useState(-10);
+  const [rotation, setRotation] = useState(70);
   const [theme, setTheme] = useState("matcha");
   const filesByTheme = {
   persimmon: ["01.svg"],   // add more if you have them: ["01.svg","02.svg",...]
@@ -78,6 +78,7 @@ console.log("[BF] APP filesByTheme:", filesByTheme[theme]);
     );
     document.body.style.background = vars["--bg"];
     document.body.style.color = vars["--body"];
+    document.body.style.overflow = "hidden";
   }, [theme]);
 
   useEffect(() => {
@@ -94,8 +95,8 @@ console.log("[BF] APP filesByTheme:", filesByTheme[theme]);
 
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === "ArrowRight") setRotation((r) => clamp(r + 8, -160, 160));
-      if (e.key === "ArrowLeft") setRotation((r) => clamp(r - 8, -160, 160));
+      if (e.key === "ArrowRight") setRotation((r) => clamp(r + 8, -90, 90));
+      if (e.key === "ArrowLeft") setRotation((r) => clamp(r - 8, -90, 90));
       if (e.key === "Enter") {
         const { inArrow, key, targetRotation } = getSnap(rotation);
         if (inArrow) {
@@ -114,7 +115,7 @@ console.log("[BF] APP filesByTheme:", filesByTheme[theme]);
     const onWheel = (e) => {
       if (!frame.current) {
         frame.current = requestAnimationFrame(() => (frame.current = 0));
-        setRotation((r) => clamp(r + e.deltaY * 0.05, -160, 160));
+        setRotation((r) => clamp(r + e.deltaY * 0.05, -90, 90));
       }
     };
     el.addEventListener("wheel", onWheel, { passive: true });
@@ -138,7 +139,7 @@ console.log("[BF] APP filesByTheme:", filesByTheme[theme]);
     if (!dragging.current) return;
     const dx = e.clientX - last.current.x;
     const dy = e.clientY - last.current.y;
-    setRotation((r) => clamp(r + (dy - dx) * 0.15, -160, 160));
+    setRotation((r) => clamp(r + (dy - dx) * 0.15, -90, 90));
     last.current = { x: e.clientX, y: e.clientY };
   };
 
@@ -251,13 +252,23 @@ function RadialDial({ rotation = 0, active }) {
     <div className="absolute top-1/2 -translate-y-1/2" style={{ left: leftShift }}>
       <motion.div
         className="relative rounded-full"
-        style={{ width: size, height: size }}
+        style={{ 
+          width: size, 
+          height: size,
+          filter: "drop-shadow(0 0 20px rgba(0,0,0,0.15)) drop-shadow(0 0 40px rgba(0,0,0,0.08))"
+        }}
         animate={{ rotate: rotation }}
         transition={{ type: "tween", duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
       >
         <div
-          className="absolute inset-0 rounded-full bg-[var(--glass)] backdrop-blur"
-          style={{ filter: "drop-shadow(0 10px 30px rgba(0,0,0,0.12))" }}
+          className="absolute inset-0 rounded-full backdrop-blur"
+          style={{ 
+            backgroundImage: "url(/png/wheeltest.png)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            filter: "drop-shadow(0 10px 30px rgba(0,0,0,0.12))" 
+          }}
         />
         <div
           className="absolute inset-0 rounded-full pointer-events-none"
@@ -269,7 +280,8 @@ function RadialDial({ rotation = 0, active }) {
           const eff = toSigned(norm(angle + rotation));
           const inArrow = angDiff(eff, arrowCenter) <= 14;
           const isActive = active === item.key;
-          const color = inArrow || isActive ? "var(--accent)" : "var(--body)";
+          const color = isActive ? "var(--wheel)" : "var(--accent)";
+          const background = isActive ? "var(--accent)" : "var(--accentSoft)";
           return (
             <div
               key={item.key}
@@ -288,7 +300,7 @@ function RadialDial({ rotation = 0, active }) {
                 cursor: "default",
                 padding: "4px 8px",
                 borderRadius: 999,
-                background: inArrow ? "var(--accentSoft)" : "transparent",
+                background,
               }}
             >
               {item.label}
@@ -352,7 +364,7 @@ function Home() {
   return (
     <div className="max-w-3xl" style={{ fontFeatureSettings: "'ss01' on, 'ss02' on" }}>
       <h1 className="text-[clamp(36px,8vw,88px)] leading-[0.95] font-semibold text-[var(--fg)] mb-6">HI, I’M KEVIN.</h1>
-      <p className="text-lg md:text-xl leading-8 text-[var(--body)]/90">Designer and ceramic artist in Tokyo. This site hosts a graphic design portfolio for employers, a small webshop for clay work and digital assets, and a journal with process notes and photography. Rotate the dial on the left; when a label meets the arrow, it highlights and the page switches. Use the edge caret to collapse the dial.</p>
+      <p className="text-lg md:text-xl leading-8 text-[var(--body)]/90">lorum ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos yada yada yada</p>
     </div>
   );
 }
@@ -386,7 +398,8 @@ function Tile({ layoutId, title, subtitle, price, delay, onClick }) {
       initial={{ y: 16, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3, delay }}
-      className="rounded-2xl shadow border border-black/5 bg-[var(--glass)] backdrop-blur overflow-hidden cursor-pointer hover:shadow-lg transition"
+      className="rounded-2xl shadow border border-black/5 backdrop-blur overflow-hidden cursor-pointer hover:shadow-lg transition"
+      style={{ background: "var(--accentSoft)" }}
     >
       <div className="aspect-video bg-black/5" />
       <div className="p-4 flex items-baseline justify-between gap-2">
@@ -490,7 +503,7 @@ function ShopWindow({ item, onClose, layoutId, onToggleMax, maximized }) {
           <div className="mt-3 flex gap-2 overflow-x-auto">
             {item.images.map((src, i) => (
               <button key={i} onClick={() => setIndex(i)} className={`h-16 w-24 rounded-lg overflow-hidden border ${i === index ? "ring-2 ring-black" : ""}`}>
-                <img src={src} alt="thumb" className="w-full h-full object-cover" />
+                <img src={src} aqlt="thumb" className="w-full h-full object-cover" />
               </button>
             ))}
           </div>
@@ -526,7 +539,8 @@ function Blog() {
             initial={{ y: 16, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.3, delay: idx * 0.03 }}
-            className="rounded-2xl bg-[var(--glass)] backdrop-blur border border-black/5 overflow-hidden cursor-pointer shadow hover:shadow-lg transition"
+            className="rounded-2xl backdrop-blur border border-black/5 overflow-hidden cursor-pointer shadow hover:shadow-lg transition"
+            style={{ background: "var(--accentSoft)" }}
           >
             <div className="aspect-video overflow-hidden">
               <img src={p.cover} alt="cover" className="w-full h-full object-cover" />
