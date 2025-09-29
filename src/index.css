@@ -2,68 +2,260 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom web fonts: update the src URLs after uploading your files into /public/fonts */
-@font-face {
-  font-family: "SiteHeader";
-  src:
-    url("/fonts/SiteHeader-Regular.woff2") format("woff2"),
-    url("/fonts/SiteHeader-Regular.woff") format("woff");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "SiteHeader";
-  src:
-    url("/fonts/SiteHeader-Bold.woff2") format("woff2"),
-    url("/fonts/SiteHeader-Bold.woff") format("woff");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "SiteBody";
-  src:
-    url("/fonts/SiteBody-Regular.woff2") format("woff2"),
-    url("/fonts/SiteBody-Regular.woff") format("woff");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "SiteBody";
-  src:
-    url("/fonts/SiteBody-Italic.woff2") format("woff2"),
-    url("/fonts/SiteBody-Italic.woff") format("woff");
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "SiteBody";
-  src:
-    url("/fonts/SiteBody-Bold.woff2") format("woff2"),
-    url("/fonts/SiteBody-Bold.woff") format("woff");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
 /* Utility classes to apply the custom fonts */
 .font-header {
-  font-family: cortado, "SiteHeader", Inter, "Noto Sans JP", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
-}
-
-.font-body {
-  font-family: "SiteBody", Inter, "Noto Sans JP", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+  font-family: cortado, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 /* Apply body font globally; headers can opt-in to font-header */
 html, body {
   font-family: "Helvetica Neue", Helvetica, Arial, "Noto Sans JP", system-ui, -apple-system, Segoe UI, Roboto, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
   font-weight: 300;
+}
+
+/* CRT Scanline Overlay Effect */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 1px,
+    rgba(0, 0, 0, 0.15) 1px,
+    rgba(0, 0, 0, 0.15) 3px
+  );
+  opacity: 0.4;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Theme-aware scanline opacity */
+body[data-theme="persimmon"]::before {
+  opacity: 0.7;
+}
+
+body[data-theme="matcha"]::before {
+  opacity: 0.7;
+}
+
+body[data-theme="glacier"]::before {
+  opacity: 0.7;
+}
+
+/* Alternative image-based scanlines (commented out for future use) */
+/*
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('/textures/scanlines.png');
+  background-repeat: repeat;
+  background-size: 2px 2px;
+  opacity: 0.25;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+  z-index: 9999;
+}
+*/
+
+/* Retro CRT Tile styles */
+.retro-window { 
+  position: relative; 
+  width: 100%; 
+  max-width: 400px; 
+  border-radius: 18px; 
+  padding: 12px 12px 16px; 
+  margin: 8px; 
+  color: var(--retro-text); 
+  background: var(--retro-card); 
+  box-shadow: 0 10px 0 0 var(--retro-stroke-2), 0 0 0 2px var(--retro-stroke), inset 0 0 0 2px rgba(0,0,0,.25); 
+  isolation: isolate; 
+}
+
+/* Expanded tile styles */
+.retro-window.expanded {
+  width: 60vw;
+  max-width: 800px;
+  min-width: 600px;
+}
+
+/* Contact page specific sizing */
+.contact-window .retro-window {
+  width: 100%;
+  max-width: min(600px, 80vw);
+  min-width: 350px;
+  height: auto;
+  max-height: calc(100vh - 300px);
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Make contact window more responsive */
+@media (max-width: 768px) {
+  .contact-window .retro-window {
+    max-width: 90vw;
+    min-width: 300px;
+    max-height: calc(100vh - 200px);
+    min-height: 350px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .contact-window .retro-window {
+    max-width: min(700px, 70vw);
+    max-height: calc(100vh - 250px);
+    min-height: 450px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .contact-window .retro-window {
+    max-width: min(800px, 60vw);
+    max-height: calc(100vh - 200px);
+    min-height: 500px;
+  }
+}
+
+.retro-window.expanded .retro-image {
+  height: 400px;
+}
+
+.retro-window.expanded .retro-desc-wrap {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Override for contact window to allow full height */
+.contact-window .retro-window.expanded .retro-desc-wrap {
+  max-height: none;
+}
+
+.retro-window.expanded .retro-desc {
+  font-size: clamp(14px, 1.4vw, 18px);
+  line-height: 1.6;
+}
+
+/* Contact window container */
+.contact-window {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Custom content styling for contact page */
+
+.contact-window .retro-titlebar {
+  flex-shrink: 0; /* Don't shrink the title bar */
+  border: none; /* Remove border for contact window */
+  background: transparent; /* Remove background for contact window */
+}
+
+.contact-window .retro-desc-wrap {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+  min-height: 0; /* Allow flexbox to shrink */
+  display: flex;
+  flex-direction: column;
+  margin-top: 0; /* Override base margin */
+  border: none; /* Remove border for contact window */
+  background: transparent; /* Remove background for contact window */
+  padding: 0; /* Remove base padding */
+}
+
+/* Make the custom content inside retro-desc-wrap flexible */
+.contact-window .retro-desc-wrap > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.retro-window .space-y-6 > * + * {
+  margin-top: 1.5rem;
+}
+
+.retro-window .space-y-3 > * + * {
+  margin-top: 0.75rem;
+}
+
+.retro-window .space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+/* Gallery arrows */
+.gallery-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gallery-arrow:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.gallery-arrow-left {
+  left: 10px;
+}
+
+.gallery-arrow-right {
+  right: 10px;
+}
+
+.retro-titlebar { background: var(--retro-card); border: 2px solid var(--retro-stroke); border-radius: 0; padding: 8px 40px 8px 12px; position: relative; text-transform: none; letter-spacing: .08em; font-family: "Helvetica Neue", Helvetica, Arial, "Noto Sans JP", system-ui, -apple-system, Segoe UI, Roboto, "Apple Color Emoji", "Segoe UI Emoji", sans-serif; font-weight: 700; font-size: clamp(14px, 2.0vw, 20px); }
+.retro-title { opacity: .95; }
+.retro-close { position: absolute; right: 6px; top: 4px; width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--retro-stroke); background: var(--retro-button); color: var(--retro-button-text); font-weight: 800; font-size: 14px; line-height: 1; box-shadow: 2px 2px 0 0 var(--retro-stroke-2); }
+.retro-close:hover { filter: brightness(.95); transform: translateY(1px); }
+.retro-panel { margin-top: 12px; border: 2px solid var(--retro-stroke); border-radius: 14px; background: var(--retro-card-2); padding: 10px; }
+.retro-panel-inner { position: relative; border-radius: 12px; background: #0b0b0b; padding: 0; overflow: hidden; }
+.retro-image { display: block; width: 100%; height: 200px; object-fit: cover; filter: contrast(.95) saturate(.9); }
+.retro-image.placeholder { display: grid; place-items: center; color: #888; font-style: italic; }
+.scanlines { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: soft-light; opacity: .50; background: repeating-linear-gradient(to bottom, rgba(255,255,255,.06) 0, rgba(255,255,255,.06) 1px, transparent 2px), radial-gradient(rgba(255,255,255,.05), transparent 60%); }
+.retro-desc-wrap { margin-top: 8px; border: 2px solid var(--retro-stroke); border-radius: 14px; background: var(--retro-card); padding: 12px 14px 16px; position: relative; }
+.retro-quote { position: absolute; left: 14px; top: 8px; font-size: 28px; color: var(--retro-text-dim); }
+.retro-quote.end { position: absolute; right: 14px; bottom: 8px; }
+.retro-desc { margin: 0; color: var(--retro-text); font-size: clamp(10px, 1.2vw, 14px); line-height: 1.4; letter-spacing: .04em; text-transform: uppercase; font-family: "Helvetica Neue", Helvetica, Arial, "Noto Sans JP", system-ui, -apple-system, Segoe UI, Roboto, "Apple Color Emoji", "Segoe UI Emoji", sans-serif; font-weight: 300; }
+.retro-actions { display: flex; gap: 8px; align-items: center; margin-top: 8px; justify-content: center; }
+.retro-btn { border-radius: 12px; border: 2px solid var(--retro-stroke); background: var(--retro-button); color: var(--retro-button-text); padding: 6px 12px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; box-shadow: 3px 3px 0 0 var(--retro-stroke-2); font-size: clamp(10px, 1.1vw, 12px); font-family: "Helvetica Neue", Helvetica, Arial, "Noto Sans JP", system-ui, -apple-system, Segoe UI, Roboto, "Apple Color Emoji", "Segoe UI Emoji", sans-serif; }
+.retro-btn.primary { flex: 1; }
+.retro-btn.secondary { width: 80px; }
+.retro-btn:hover { filter: brightness(.96); transform: translateY(1px); }
+.crt-grid { position: absolute; inset: 6px; border-radius: 12px; pointer-events: none; opacity: .08; background-image: linear-gradient(rgba(0,0,0,.8), rgba(0,0,0,.8)); mix-blend-mode: multiply; }
+.crt-grid::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,.2) 1px, transparent 1px); background-size: 6px 6px; opacity: .7; }
+
+/* RetroCRTTile theme integration - uses existing theme variables */
+.retro-window {
+  --retro-bg: var(--bg);
+  --retro-card: var(--accentSoft);
+  --retro-card-2: var(--accent);
+  --retro-stroke: var(--stroke);
+  --retro-stroke-2: rgba(0,0,0,.3);
+  --retro-text: var(--body);
+  --retro-text-dim: var(--body);
+  --retro-button: var(--wheel);
+  --retro-button-text: var(--fg);
 }

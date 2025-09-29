@@ -1,6 +1,10 @@
-import React, { useMemo, useRef, useState, useEffect, useCallback, useContext } from "react";
+import React, { useMemo, useRef, useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import RetroCRTTile from "./components/RetroCRTTile.jsx";
 import BackgroundFloaters from "./components/BackgroundFloaters.jsx";
+import { useWordPressPostsSafe as usePortfolioPosts, useWordPressPostsSafe as useJournalPosts } from "./hooks/useWordPressSafe";
+import { useWooCommerceProductsSafe as useShopProducts } from "./hooks/useWordPressSafe";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 const norm = (deg) => ((deg % 360) + 360) % 360;
@@ -20,7 +24,6 @@ const themes = {
     "--stroke": "#0E0E0E",
     "--accent": "#E24D00",
     "--accentSoft": "#ffc8ad",
-    "--glass": "rgba(0,0,0,0.1)",
   },
   matcha: {
     name: "Matcha",
@@ -31,7 +34,6 @@ const themes = {
     "--stroke": "#0E0E0E",
     "--accent": "#74995b",
     "--accentSoft": "#cfe0c8",
-    "--glass": "rgba(0,0,0,0.1)",
   },
   glacier: {
     name: "Glacier",
@@ -42,16 +44,15 @@ const themes = {
     "--stroke": "#0E0E0E",
     "--accent": "#1a1a1a",
     "--accentSoft": "#eaeaea",
-    "--glass": "rgba(255,255,255,0.1)",
   },
 };
 
 const NAV_ITEMS = [
-  { key: "home", label: "HOME" },
-  { key: "portfolio", label: "PORTFOLIO" },
-  { key: "shop", label: "SHOP" },
-  { key: "blog", label: "JOURNAL" },
-  { key: "contact", label: "CONTACT" },
+  { key: "home", label: "Home" },
+  { key: "portfolio", label: "Portfolio" },
+  { key: "shop", label: "Shop" },
+  { key: "blog", label: "Journal" },
+  { key: "contact", label: "Contact" },
 ];
 
 function PortfolioSite() {
@@ -63,7 +64,6 @@ function PortfolioSite() {
   matcha:    ["01.svg"],
   glacier:   ["01.svg"],
 };
-console.log("[BF] APP filesByTheme:", filesByTheme[theme]);
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
@@ -79,6 +79,7 @@ console.log("[BF] APP filesByTheme:", filesByTheme[theme]);
     document.body.style.background = vars["--bg"];
     document.body.style.color = vars["--body"];
     document.body.style.overflow = "hidden";
+    document.body.setAttribute('data-theme', theme);
   }, [theme]);
 
   useEffect(() => {
@@ -202,7 +203,7 @@ console.log("[BF] APP filesByTheme:", filesByTheme[theme]);
             <button
               aria-label="Collapse navigation"
               onClick={() => setCollapsed(true)}
-              className="absolute top-1/2 -translate-y-1/2 right-3 z-50 rounded-full bg-[var(--glass)] backdrop-blur px-2 py-2 shadow-md hover:shadow-lg transition"
+              className="absolute top-1/2 -translate-y-1/2 right-3 z-50 rounded-full bg-[var(--accentSoft)] backdrop-blur px-2 py-2 shadow-md hover:shadow-lg transition"
             >
               <Caret dir="left" />
             </button>
@@ -214,7 +215,7 @@ console.log("[BF] APP filesByTheme:", filesByTheme[theme]);
             <button
               aria-label="Expand navigation"
               onClick={() => setCollapsed(false)}
-              className="fixed left-3 top-1/2 -translate-y-1/2 z-50 rounded-full bg-[var(--glass)] backdrop-blur px-2 py-2 shadow-md hover:shadow-lg transition"
+              className="fixed left-3 top-1/2 -translate-y-1/2 z-50 rounded-full bg-[var(--accentSoft)] backdrop-blur px-2 py-2 shadow-md hover:shadow-lg transition"
             >
               <Caret dir="right" />
             </button>
@@ -230,7 +231,7 @@ console.log("[BF] APP filesByTheme:", filesByTheme[theme]);
                 transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                 className="h-full"
               >
-                <Content area={active} />
+                <Content area={active} collapsed={collapsed} />
               </motion.div>
             </AnimatePresence>
           </div>
@@ -299,7 +300,7 @@ function RadialDial({ rotation = 0, active, theme }) {
                 left: radius,
                 transform: `rotate(${angle}deg) translate(${radius - labelInset}px) rotate(${-angle - rotation}deg)`,
                 transformOrigin: "0 0",
-                fontSize: idx === 1 ? 28 : 24,
+                fontSize: idx === 1 ? 36 : 31,
                 letterSpacing: 1.4,
                 color,
                 userSelect: "none",
@@ -347,16 +348,16 @@ function Caret({ dir = "right", size = 18 }) {
   );
 }
 
-function Content({ area }) {
+function Content({ area, collapsed }) {
   switch (area) {
     case "home":
       return <Home />;
     case "portfolio":
-      return <Portfolio />;
+      return <Portfolio collapsed={collapsed} />;
     case "shop":
-      return <Shop />;
+      return <Shop collapsed={collapsed} />;
     case "blog":
-      return <Blog />;
+      return <Blog collapsed={collapsed} />;
     case "contact":
       return <Contact />;
     default:
@@ -373,28 +374,20 @@ function Home() {
   );
 }
 
-function WindowChrome({ title, onClose, onToggleMin, onToggleMax, maximized, minimized }) {
+
+function SectionTitle({ children }) {
+  return <h2 className="font-header text-6xl md:text-7xl font-semibold text-[var(--fg)] mb-8 tracking-tight ml-4">{children}</h2>;
+}
+
+function Grid({ children, collapsed }) {
   return (
-    <div className="relative flex items-center gap-2 px-3 py-2 border-b bg-[var(--glass)] backdrop-blur">
-      <div className="flex items-center gap-2 absolute left-3">
-        <button aria-label="Close" onClick={onClose} className="w-3.5 h-3.5 rounded-full bg-[#ff5f57]" />
-        <button aria-label="Minimize" onClick={onToggleMin} className="w-3.5 h-3.5 rounded-full bg-[#ffbd2e]" />
-        <button aria-label="Maximize" onClick={onToggleMax} className="w-3.5 h-3.5 rounded-full bg-[#28c840]" />
-      </div>
-      <div className="w-full text-center text-sm font-medium text-[var(--body)]">{title}</div>
+    <div className={`grid gap-6 p-4 ${collapsed ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-2'} max-h-[calc(100vh-200px)] overflow-y-auto`}>
+      {children}
     </div>
   );
 }
 
-function SectionTitle({ children }) {
-  return <h2 className="font-header text-4xl md:text-5xl font-semibold text-[var(--fg)] mb-8 tracking-tight">{children}</h2>;
-}
-
-function Grid({ children }) {
-  return <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">{children}</div>;
-}
-
-function Tile({ layoutId, title, subtitle, price, delay, onClick }) {
+function Tile({ layoutId, title, subtitle, delay, onClick, imageSrc, showBuy = true }) {
   return (
     <motion.div
       layoutId={layoutId}
@@ -402,187 +395,416 @@ function Tile({ layoutId, title, subtitle, price, delay, onClick }) {
       initial={{ y: 16, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3, delay }}
-      className="rounded-2xl shadow border border-black/5 backdrop-blur overflow-hidden cursor-pointer hover:shadow-lg transition"
-      style={{ background: "var(--accentSoft)" }}
+      className="cursor-pointer"
     >
-      <div className="aspect-video bg-black/5" />
-      <div className="p-4 flex items-baseline justify-between gap-2">
-        <h3 className="font-medium text-[var(--body)]">{title}</h3>
-        {price ? <div className="text-[var(--body)]/80 text-sm">{price}</div> : <p className="text-sm text-[var(--body)]/70">{subtitle}</p>}
-      </div>
+      <RetroCRTTile
+        title={title}
+        imageSrc={imageSrc}
+        description={subtitle}
+        primaryLabel="VIEW"
+        secondaryLabel={showBuy && price ? "BUY" : ""}
+        onPrimary={onClick}
+        onSecondary={showBuy && price ? onClick : () => {}}
+        onClose={() => {}}
+        showClose={false}
+      />
     </motion.div>
   );
 }
 
-function Window({ layoutId, title, onClose, onToggleMax, maximized, children }) {
-  const [minimized, setMinimized] = useState(false);
-  const containerBase = maximized
-    ? "absolute inset-0 bg-white rounded-none shadow-2xl border"
-    : "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl border w-[min(92vw,980px)] max-w-[95vw] min-w-[320px] h-[min(82vh,760px)] overflow-hidden";
-  return (
-    <>
-      {!maximized && !minimized && (
-        <motion.div className="fixed inset-0 bg-black/30 z-40" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
-      )}
-      <motion.div
-        layoutId={layoutId}
-        drag={!maximized && !minimized}
-        dragMomentum={false}
-        className={`${containerBase} z-50`}
-      >
-        <WindowChrome title={title} onClose={onClose} onToggleMin={() => setMinimized((m) => !m)} onToggleMax={onToggleMax} maximized={maximized} minimized={minimized} />
-        {!minimized && <div className="p-6 h-[calc(100%-40px)] overflow-auto">{children}</div>}
-      </motion.div>
-    </>
-  );
-}
 
-function GalleryButton({ side, onClick }) {
-  return (
-    <button onClick={onClick} className={`absolute ${side === "left" ? "left-2" : "right-2"} top-1/2 -translate-y-1/2 rounded-full bg-[var(--glass)] backdrop-blur px-2 py-2 shadow hover:shadow-lg`} aria-label={side === "left" ? "Previous" : "Next"}>
-      <Caret dir={side === "left" ? "left" : "right"} />
-    </button>
-  );
-}
 
-function Portfolio() {
-  const items = useMemo(() => Array.from({ length: 8 }).map((_, i) => ({ id: i, title: `Project ${i + 1}`, blurb: "A short description of the project goes here." })), []);
+function Portfolio({ collapsed }) {
+  const { posts, loading, error } = usePortfolioPosts('portfolio');
   const [openId, setOpenId] = useState(null);
-  const [maximized, setMaximized] = useState(false);
-  return (
-    <div className="h-full relative">
-      <SectionTitle>Portfolio</SectionTitle>
-      <Grid>
-        {items.map((it, idx) => (
-          <Tile key={it.id} layoutId={`card-${it.id}`} title={it.title} subtitle={it.blurb} delay={idx * 0.03} onClick={() => { setOpenId(it.id); setMaximized(false); }} />
-        ))}
-      </Grid>
-      <AnimatePresence>
-        {openId !== null && (
-          <Window layoutId={`card-${openId}`} title={`Project ${openId + 1}`} onClose={() => setOpenId(null)} onToggleMax={() => setMaximized((m) => !m)} maximized={maximized}>
-            <div className="aspect-video bg-black/10 rounded-xl mb-4" />
-            <h3 className="text-xl font-semibold mb-2 text-[var(--body)]">Title of the project</h3>
-            <p className="text-[var(--body)]/80">Replace this with real content. This draggable window has rounded edges and can be closed (red) or expanded (green).</p>
-          </Window>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
 
-function Shop() {
-  const items = useMemo(() => Array.from({ length: 9 }).map((_, i) => ({ id: i, title: `Item ${i + 1}`, price: (i + 1) * 1200, images: [`https://picsum.photos/seed/shop${i}-a/800/500`, `https://picsum.photos/seed/shop${i}-b/800/500`, `https://picsum.photos/seed/shop${i}-c/800/500`], desc: "Short description: materials, size, and special details." })), []);
-  const [openId, setOpenId] = useState(null);
-  const [maximized, setMaximized] = useState(false);
-  return (
-    <div className="h-full relative">
-      <SectionTitle>Shop</SectionTitle>
-      <Grid>
-        {items.map((it, idx) => (
-          <Tile key={it.id} layoutId={`shop-${it.id}`} title={it.title} price={`¥${it.price.toLocaleString()}`} delay={idx * 0.03} onClick={() => { setOpenId(it.id); setMaximized(false); }} />
-        ))}
-      </Grid>
-      <AnimatePresence>
-        {openId !== null && (
-          <ShopWindow item={items[openId]} layoutId={`shop-${openId}`} onClose={() => setOpenId(null)} onToggleMax={() => setMaximized((m) => !m)} maximized={maximized} />
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-function ShopWindow({ item, onClose, layoutId, onToggleMax, maximized }) {
-  const [index, setIndex] = useState(0);
-  const next = () => setIndex((i) => (i + 1) % item.images.length);
-  const prev = () => setIndex((i) => (i - 1 + item.images.length) % item.images.length);
-  return (
-    <Window layoutId={layoutId} title={`${item.title} · ¥${item.price.toLocaleString()}`} onClose={onClose} onToggleMax={onToggleMax} maximized={maximized}>
-      <div className="grid grid-rows-[auto_1fr] md:grid-cols-[1fr_280px] gap-0">
-        <div className="relative p-4">
-          <div className="relative aspect-video bg-black/10 rounded-xl overflow-hidden">
-            <img src={item.images[index]} alt={item.title} className="w-full h-full object-cover" />
-            <GalleryButton side="left" onClick={prev} />
-            <GalleryButton side="right" onClick={next} />
-          </div>
-          <div className="mt-3 flex gap-2 overflow-x-auto">
-            {item.images.map((src, i) => (
-              <button key={i} onClick={() => setIndex(i)} className={`h-16 w-24 rounded-lg overflow-hidden border ${i === index ? "ring-2 ring-black" : ""}`}>
-                <img src={src} aqlt="thumb" className="w-full h-full object-cover" />
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="p-4 md:border-l">
-          <h3 className="text-lg font-semibold text-[var(--body)] mb-2">{item.title}</h3>
-          <div className="text-[var(--body)]/70 mb-4">¥{item.price.toLocaleString()}</div>
-          <p className="text-[var(--body)]/80 mb-4">{item.desc}</p>
-          <button className="px-4 py-2 rounded-xl border bg-[var(--wheel)] hover:shadow">Add to Cart (stub)</button>
+  if (loading) {
+    return (
+      <div className="h-full relative">
+        <SectionTitle>Portfolio</SectionTitle>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-[var(--body)]/70">Loading portfolio...</div>
         </div>
       </div>
-    </Window>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-full relative">
+        <SectionTitle>Portfolio</SectionTitle>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-red-500">Error loading portfolio: {error}</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (posts.length === 0) {
+    return (
+      <div className="h-full relative">
+        <SectionTitle>Portfolio</SectionTitle>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-[var(--body)]/70">
+            No portfolio items found. 
+            <br />
+            <span className="text-sm">Configure WordPress integration to see your portfolio.</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <ErrorBoundary fallback="Portfolio section is temporarily unavailable. Please try again later.">
+      <div className="h-full relative">
+        <SectionTitle>Portfolio</SectionTitle>
+        <Grid collapsed={collapsed}>
+          {posts.map((post, idx) => (
+            <Tile 
+              key={post.id} 
+              layoutId={`card-${post.id}`} 
+              title={post.title} 
+              subtitle={post.excerpt} 
+              imageSrc={post.featuredImage} 
+              delay={idx * 0.03} 
+              onClick={() => setOpenId(post.id)} 
+              showBuy={false} 
+            />
+          ))}
+        </Grid>
+        <AnimatePresence>
+          {openId !== null && (
+            <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50">
+              {(() => {
+                const post = posts.find(p => p.id === openId);
+                if (!post) return null;
+                
+                return (
+                  <RetroCRTTile
+                    title={post.title}
+                    imageSrc={post.featuredImage}
+                    images={[post.featuredImage]} // You can add more images to WordPress posts
+                    description={post.excerpt}
+                    primaryLabel="VIEW PROJECT"
+                    onPrimary={() => window.open(post.link, '_blank')}
+                    onClose={() => setOpenId(null)}
+                    expanded={true}
+                    onImageClick={() => window.open(post.featuredImage, '_blank')}
+                  />
+                );
+              })()}
+            </div>
+          )}
+        </AnimatePresence>
+      </div>
+    </ErrorBoundary>
   );
 }
 
-function Blog() {
-  const posts = useMemo(() => [
-    { id: 0, title: "Kiln Firing Notes: Summer Session", date: "2025-07-02", body: "Long-form notes from a multi-day firing. Heat, cones, and community.", cover: "https://picsum.photos/seed/kiln/800/500" },
-    { id: 1, title: "Designing a Wheel Nav", date: "2025-06-11", body: "R&D on arc-based navigation with smooth snapping.", cover: "https://picsum.photos/seed/wheel/800/500" },
-    { id: 2, title: "Mashiko Fieldnotes", date: "2025-05-28", body: "Observations from studio visits and markets.", cover: "https://picsum.photos/seed/mashiko/800/500" },
-  ], []);
+function Shop({ collapsed }) {
+  const { products, loading, error } = useShopProducts();
   const [openId, setOpenId] = useState(null);
-  const [maximized, setMaximized] = useState(false);
+
+  if (loading) {
+    return (
+      <div className="h-full relative">
+        <SectionTitle>Shop</SectionTitle>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-[var(--body)]/70">Loading products...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-full relative">
+        <SectionTitle>Shop</SectionTitle>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-red-500">Error loading products: {error}</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (products.length === 0) {
+    return (
+      <div className="h-full relative">
+        <SectionTitle>Shop</SectionTitle>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-[var(--body)]/70">
+            No products found. 
+            <br />
+            <span className="text-sm">Configure WooCommerce integration to see your products.</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="relative">
-      <SectionTitle>Journal</SectionTitle>
-      <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {posts.map((p, idx) => (
-          <motion.li
-            key={p.id}
-            layoutId={`post-${p.id}`}
-            onClick={() => { setOpenId(p.id); setMaximized(false); }}
-            initial={{ y: 16, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.3, delay: idx * 0.03 }}
-            className="rounded-2xl backdrop-blur border border-black/5 overflow-hidden cursor-pointer shadow hover:shadow-lg transition"
-            style={{ background: "var(--accentSoft)" }}
-          >
-            <div className="aspect-video overflow-hidden">
-              <img src={p.cover} alt="cover" className="w-full h-full object-cover" />
+    <ErrorBoundary fallback="Shop section is temporarily unavailable. Please try again later.">
+      <div className="h-full relative">
+        <SectionTitle>Shop</SectionTitle>
+        <Grid collapsed={collapsed}>
+          {products.map((product, idx) => (
+            <Tile 
+              key={product.id} 
+              layoutId={`shop-${product.id}`} 
+              title={product.name} 
+              subtitle={`$${product.price}`} 
+              imageSrc={product.images[0]?.src} 
+              delay={idx * 0.03} 
+              onClick={() => setOpenId(product.id)} 
+            />
+          ))}
+        </Grid>
+        <AnimatePresence>
+          {openId !== null && (
+            <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50">
+              {(() => {
+                const product = products.find(p => p.id === openId);
+                if (!product) return null;
+                
+                return (
+                  <RetroCRTTile
+                    title={product.name}
+                    imageSrc={product.images[0]?.src}
+                    images={product.images.map(img => img.src)}
+                    description={product.shortDescription || product.description}
+                    primaryLabel="BUY NOW"
+                    onPrimary={() => window.open(product.permalink, '_blank')}
+                    secondaryLabel="ADD TO CART"
+                    onSecondary={() => window.open(product.permalink, '_blank')}
+                    onClose={() => setOpenId(null)}
+                    expanded={true}
+                    onImageClick={() => window.open(product.images[0]?.src, '_blank')}
+                  />
+                );
+              })()}
             </div>
-            <div className="p-4">
-              <div className="text-sm text-[var(--body)]/60">{p.date}</div>
-              <div className="text-lg font-medium text-[var(--body)]">{p.title}</div>
+          )}
+        </AnimatePresence>
+      </div>
+    </ErrorBoundary>
+  );
+}
+
+
+function Blog({ collapsed }) {
+  const { posts, loading, error } = useJournalPosts('journal');
+  const [openId, setOpenId] = useState(null);
+
+  if (loading) {
+    return (
+      <div className="h-full relative">
+        <SectionTitle>Journal</SectionTitle>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-[var(--body)]/70">Loading journal...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-full relative">
+        <SectionTitle>Journal</SectionTitle>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-red-500">Error loading journal: {error}</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (posts.length === 0) {
+    return (
+      <div className="h-full relative">
+        <SectionTitle>Journal</SectionTitle>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-[var(--body)]/70">
+            No journal posts found. 
+            <br />
+            <span className="text-sm">Configure WordPress integration to see your journal.</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <ErrorBoundary fallback="Journal section is temporarily unavailable. Please try again later.">
+      <div className="relative">
+        <SectionTitle>Journal</SectionTitle>
+        <Grid collapsed={collapsed}>
+          {posts.map((post, idx) => (
+            <Tile 
+              key={post.id} 
+              layoutId={`post-${post.id}`} 
+              title={post.title} 
+              subtitle={new Date(post.date).toLocaleDateString()} 
+              imageSrc={post.featuredImage} 
+              delay={idx * 0.03} 
+              onClick={() => setOpenId(post.id)} 
+              showBuy={false} 
+            />
+          ))}
+        </Grid>
+        <AnimatePresence>
+          {openId !== null && (
+            <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50">
+              {(() => {
+                const post = posts.find(p => p.id === openId);
+                if (!post) return null;
+                
+                return (
+                  <RetroCRTTile
+                    title={post.title}
+                    imageSrc={post.featuredImage}
+                    images={[post.featuredImage]}
+                    description={post.excerpt}
+                    primaryLabel="READ FULL POST"
+                    onPrimary={() => window.open(post.link, '_blank')}
+                    secondaryLabel="SHARE"
+                    onSecondary={() => {
+                      if (navigator.share) {
+                        navigator.share({
+                          title: post.title,
+                          text: post.excerpt,
+                          url: post.link
+                        });
+                      } else {
+                        navigator.clipboard.writeText(post.link);
+                      }
+                    }}
+                    onClose={() => setOpenId(null)}
+                    expanded={true}
+                    onImageClick={() => window.open(post.featuredImage, '_blank')}
+                  />
+                );
+              })()}
             </div>
-          </motion.li>
-        ))}
-      </ul>
-      <AnimatePresence>
-        {openId !== null && (
-          <Window layoutId={`post-${openId}`} title={posts.find((p) => p.id === openId)?.title ?? ""} onClose={() => setOpenId(null)} onToggleMax={() => setMaximized((m) => !m)} maximized={maximized}>
-            <div className="aspect-video bg-black/10 rounded-xl mb-4 overflow-hidden">
-              <img src={posts.find((p) => p.id === openId)?.cover} alt="cover" className="w-full h-full object-cover" />
-            </div>
-            <div className="text-sm text-[var(--body)]/60 mb-2">{posts.find((p) => p.id === openId)?.date}</div>
-            <p className="text-[var(--body)]/80">{posts.find((p) => p.id === openId)?.body}</p>
-          </Window>
-        )}
-      </AnimatePresence>
-    </div>
+          )}
+        </AnimatePresence>
+      </div>
+    </ErrorBoundary>
   );
 }
 
 function Contact() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const subject = encodeURIComponent(`Portfolio Inquiry from ${formData.name}`);
+    const body = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`);
+    const mailtoLink = `mailto:kdikdan@gmail.com?subject=${subject}&body=${body}`;
+    window.location.href = mailtoLink;
+  };
+
+  const socialLinks = [
+    { name: 'LinkedIn', url: 'https://linkedin.com/in/kevin-dikdan' },
+    { name: 'YouTube', url: 'https://youtube.com/@kevin-dikdan' },
+    { name: 'Instagram', url: 'https://instagram.com/nadkidceramics' }
+  ];
+
   return (
-    <div className="max-w-2xl">
-      <SectionTitle>Contact</SectionTitle>
-      <p className="text-lg text-[var(--body)]/90 mb-6">For collaborations, inquiries, or commissions, drop a note:</p>
-      <form onSubmit={(e) => e.preventDefault()} className="grid grid-cols-1 gap-4 max-w-xl">
-        <input className="border rounded-xl px-4 py-3 bg-white/95" placeholder="Your name" />
-        <input type="email" className="border rounded-xl px-4 py-3 bg-white/95" placeholder="Email" />
-        <textarea rows={5} className="border rounded-xl px-4 py-3 bg-white/95" placeholder="Message" />
-        <button className="justify-self-start px-5 py-2.5 rounded-xl border bg-[var(--wheel)] hover:shadow" type="submit">Send</button>
-      </form>
-    </div>
+    <ErrorBoundary fallback="Contact section is temporarily unavailable. Please try again later.">
+      <div className="h-full relative px-8 md:px-16 lg:px-24">
+        <SectionTitle>Contact</SectionTitle>
+        <div className="flex justify-start items-start h-[calc(100vh-200px)] ml-4">
+          <div className="w-full max-w-4xl contact-window h-full">
+            <RetroCRTTile
+              title="Get in Touch"
+              imageSrc=""
+              description="Connect with me on social media or send a message directly to my inbox."
+              primaryLabel=""
+              onPrimary={() => {}}
+              onClose={() => {}}
+              showClose={false}
+              expanded={true}
+              customContent={
+                <div className="flex flex-col h-full space-y-8 px-6">
+                  {/* Social Media Buttons */}
+                  <div className="flex-shrink-0 space-y-4 pt-6">
+                    <div className="flex flex-col gap-4 items-center">
+                      {socialLinks.map((social) => (
+                        <button
+                          key={social.name}
+                          onClick={() => window.open(social.url, '_blank')}
+                          className="flex items-center justify-center px-4 py-3 rounded-full border-2 border-[var(--accent)] bg-[var(--accentSoft)] font-medium text-[var(--body)] hover:scale-105 hover:bg-[var(--accent)] hover:text-[var(--wheel)] transition-all duration-200 w-3/4"
+                        >
+                          {social.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Contact Form */}
+                  <div className="flex-1 space-y-4 min-h-0">
+                    <h3 className="text-xl font-bold text-[var(--body)] mb-4" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, "Noto Sans JP", system-ui, -apple-system, Segoe UI, Roboto, "Apple Color Emoji", "Segoe UI Emoji", sans-serif' }}>Send a Message</h3>
+                    <form onSubmit={handleSubmit} className="space-y-5 w-3/4 mx-auto">
+                      <div>
+                        <input
+                          type="text"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          placeholder="Your Name"
+                          required
+                          className="w-full px-4 py-3 rounded-lg border-2 border-[var(--stroke)] bg-[var(--wheel)] text-[var(--body)] placeholder-[var(--body)]/60 focus:outline-none focus:border-[var(--accent)]"
+                        />
+                      </div>
+                      <div>
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          placeholder="Your Email"
+                          required
+                          className="w-full px-4 py-3 rounded-lg border-2 border-[var(--stroke)] bg-[var(--wheel)] text-[var(--body)] placeholder-[var(--body)]/60 focus:outline-none focus:border-[var(--accent)]"
+                        />
+                      </div>
+                      <div>
+                        <textarea
+                          name="message"
+                          value={formData.message}
+                          onChange={handleInputChange}
+                          placeholder="Your Message"
+                          required
+                          rows={4}
+                          className="w-full px-4 py-3 rounded-lg border-2 border-[var(--stroke)] bg-[var(--wheel)] text-[var(--body)] placeholder-[var(--body)]/60 focus:outline-none focus:border-[var(--accent)] resize-none"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        className="w-full py-3 px-6 bg-[var(--accent)] text-[var(--wheel)] font-semibold rounded-lg border-2 border-[var(--stroke)] hover:bg-[var(--accentSoft)] hover:text-[var(--body)] transition-colors duration-200"
+                      >
+                        Send Message
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              }
+            />
+          </div>
+        </div>
+      </div>
+    </ErrorBoundary>
   );
 }
 

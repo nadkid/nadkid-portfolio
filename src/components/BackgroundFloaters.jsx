@@ -1,8 +1,6 @@
 // src/components/BackgroundFloaters.jsx
 import React, { useEffect, useRef } from "react";
 
-// version stamp so we know this file is running
-console.log("[BF] FILE VERSION v-fix-assetsRef-1");
 
 export default function BackgroundFloaters(props) {
   const {
@@ -12,7 +10,6 @@ export default function BackgroundFloaters(props) {
     maxParticles = 42,
   } = props;
 
-  console.log("[BF] MOUNT", { theme, basePath, filenames });
 
   // --- refs / state ---
   const canvasRef = useRef(null);
