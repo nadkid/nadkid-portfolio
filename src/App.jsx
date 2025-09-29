@@ -245,7 +245,7 @@ function RadialDial({ rotation = 0, active }) {
   const radius = size / 2;
   const leftShift = -size * 0.62;
   const arrowCenter = 0;
-  const labelInset = 170;
+  const labelInset = 220;
   const baseAngles = [-70, -25, 10, 45, 80];
 
   return (
@@ -280,27 +280,25 @@ function RadialDial({ rotation = 0, active }) {
           const eff = toSigned(norm(angle + rotation));
           const inArrow = angDiff(eff, arrowCenter) <= 14;
           const isActive = active === item.key;
-          const color = isActive ? "var(--wheel)" : "var(--accent)";
-          const background = isActive ? "var(--accent)" : "var(--accentSoft)";
+          // Nav label typography and color rules
+          const color = isActive ? "var(--accent)" : "#1a1a1a";
           return (
             <div
               key={item.key}
               role="tab"
               aria-selected={isActive}
-              className="absolute font-medium tracking-wide select-none"
+              className="absolute font-header font-medium tracking-wide select-none"
               style={{
                 top: radius,
                 left: radius,
                 transform: `rotate(${angle}deg) translate(${radius - labelInset}px) rotate(${-angle - rotation}deg)`,
                 transformOrigin: "0 0",
-                fontSize: idx === 1 ? 22 : 19,
+                fontSize: idx === 1 ? 28 : 24,
                 letterSpacing: 1.4,
                 color,
                 userSelect: "none",
                 cursor: "default",
-                padding: "4px 8px",
-                borderRadius: 999,
-                background,
+                padding: "6px 12px",
               }}
             >
               {item.label}
@@ -363,7 +361,7 @@ function Content({ area }) {
 function Home() {
   return (
     <div className="max-w-3xl" style={{ fontFeatureSettings: "'ss01' on, 'ss02' on" }}>
-      <h1 className="text-[clamp(36px,8vw,88px)] leading-[0.95] font-semibold text-[var(--fg)] mb-6">HI, I’M KEVIN.</h1>
+      <h1 className="font-header text-[clamp(36px,8vw,88px)] leading-[0.95] font-semibold text-[var(--fg)] mb-6">HI, I’M KEVIN.</h1>
       <p className="text-lg md:text-xl leading-8 text-[var(--body)]/90">lorum ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos yada yada yada</p>
     </div>
   );
@@ -383,7 +381,7 @@ function WindowChrome({ title, onClose, onToggleMin, onToggleMax, maximized, min
 }
 
 function SectionTitle({ children }) {
-  return <h2 className="text-4xl md:text-5xl font-semibold text-[var(--fg)] mb-8 tracking-tight">{children}</h2>;
+  return <h2 className="font-header text-4xl md:text-5xl font-semibold text-[var(--fg)] mb-8 tracking-tight">{children}</h2>;
 }
 
 function Grid({ children }) {

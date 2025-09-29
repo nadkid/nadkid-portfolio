@@ -1,3 +1,69 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom web fonts: update the src URLs after uploading your files into /public/fonts */
+@font-face {
+  font-family: "SiteHeader";
+  src:
+    url("/fonts/SiteHeader-Regular.woff2") format("woff2"),
+    url("/fonts/SiteHeader-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SiteHeader";
+  src:
+    url("/fonts/SiteHeader-Bold.woff2") format("woff2"),
+    url("/fonts/SiteHeader-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SiteBody";
+  src:
+    url("/fonts/SiteBody-Regular.woff2") format("woff2"),
+    url("/fonts/SiteBody-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SiteBody";
+  src:
+    url("/fonts/SiteBody-Italic.woff2") format("woff2"),
+    url("/fonts/SiteBody-Italic.woff") format("woff");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SiteBody";
+  src:
+    url("/fonts/SiteBody-Bold.woff2") format("woff2"),
+    url("/fonts/SiteBody-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Utility classes to apply the custom fonts */
+.font-header {
+  font-family: cortado, "SiteHeader", Inter, "Noto Sans JP", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+}
+
+.font-body {
+  font-family: "SiteBody", Inter, "Noto Sans JP", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+}
+
+/* Apply body font globally; headers can opt-in to font-header */
+html, body {
+  font-family: "Helvetica Neue", Helvetica, Arial, "Noto Sans JP", system-ui, -apple-system, Segoe UI, Roboto, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+  font-weight: 300;
+}
