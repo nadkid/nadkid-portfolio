@@ -196,7 +196,7 @@ console.log("[BF] APP filesByTheme:", filesByTheme[theme]);
             aria-label="Section navigation wheel"
             role="tablist"
           >
-            <RadialDial rotation={rotation} active={active} />
+            <RadialDial rotation={rotation} active={active} theme={theme} />
           </div>
           {!collapsed && (
             <button
@@ -240,13 +240,19 @@ console.log("[BF] APP filesByTheme:", filesByTheme[theme]);
   );
 }
 
-function RadialDial({ rotation = 0, active }) {
+function RadialDial({ rotation = 0, active, theme }) {
   const size = 1200;
   const radius = size / 2;
   const leftShift = -size * 0.62;
   const arrowCenter = 0;
   const labelInset = 220;
   const baseAngles = [-70, -25, 10, 45, 80];
+  const wheelImageByTheme = {
+    persimmon: "/png/Wheel_Persimmon.png",
+    matcha: "/png/Wheel_Matcha.png",
+    glacier: "/png/Wheel_Glacier.png",
+  };
+  const navTextColor = theme === "glacier" ? "#f7f7f7" : "#1a1a1a";
 
   return (
     <div className="absolute top-1/2 -translate-y-1/2" style={{ left: leftShift }}>
@@ -263,7 +269,7 @@ function RadialDial({ rotation = 0, active }) {
         <div
           className="absolute inset-0 rounded-full backdrop-blur"
           style={{ 
-            backgroundImage: "url(/png/wheeltest.png)",
+            backgroundImage: `url(${wheelImageByTheme[theme]})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
@@ -281,7 +287,7 @@ function RadialDial({ rotation = 0, active }) {
           const inArrow = angDiff(eff, arrowCenter) <= 14;
           const isActive = active === item.key;
           // Nav label typography and color rules
-          const color = isActive ? "var(--accent)" : "#1a1a1a";
+          const color = isActive ? "var(--accent)" : navTextColor;
           return (
             <div
               key={item.key}
