@@ -51,7 +51,11 @@ export default function BackgroundFloaters(props) {
   }
 
   async function loadAsset(url) {
-    return (await loadSVGAsBitmap(url)) || (await loadOneImage(url));
+    try {
+      return (await loadSVGAsBitmap(url)) || (await loadOneImage(url));
+    } catch (error) {
+      return null;
+    }
   }
 
   // ---- asset effect ----
@@ -60,17 +64,17 @@ export default function BackgroundFloaters(props) {
 
     const names = Array.isArray(filenames) && filenames.length
       ? filenames
-      : ["01.svg", "02.svg", "03.svg", "04.svg", "05.svg", "06.svg"];
+      : [`Floater_${theme.charAt(0).toUpperCase() + theme.slice(1)}.svg`];
 
     const urls = names.map((n) => `${basePath}${theme}/${n}`);
-    console.log("[BF] asset URLs for", theme, urls);
 
     (async () => {
       const loaded = (await Promise.all(urls.map(loadAsset))).filter(Boolean);
       if (cancelled) return;
       assetsRef.current = loaded; // <-- in-scope ref
-      console.log("[BF] assets loaded:", loaded.length, loaded.map(a => a.url));
-      if (!loaded.length) console.warn("[BF] No assets loaded; will draw primitives.");
+      if (!loaded.length) {
+        // Fall back to drawing primitives if no assets loaded
+      }
       spawnParticles(true);
     })();
 
@@ -83,11 +87,15 @@ export default function BackgroundFloaters(props) {
     canvas.style.position = "fixed";
     canvas.style.inset = "0";
     canvas.style.pointerEvents = "none";
-    canvas.style.zIndex = "5";
+    canvas.style.zIndex = "1"; // Lower z-index to avoid conflicts
     if (DEBUG_ON_TOP) canvas.style.outline = "2px solid magenta";
-    document.body.prepend(canvas);
+    document.body.appendChild(canvas); // Use appendChild instead of prepend
     canvasRef.current = canvas;
     const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      console.warn('[BF] Failed to get 2D context from canvas');
+      return;
+    }
     ctxRef.current = ctx;
 
     const handleResize = () => {
@@ -235,7 +243,7 @@ export default function BackgroundFloaters(props) {
             throw new Error("asset not ready");
           }
         } catch (e) {
-          console.warn("[BF] draw fallback for", p.asset?.url, e?.message);
+          // Draw fallback primitive if asset drawing fails
         }
       }
 

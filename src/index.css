@@ -4,13 +4,129 @@
 
 /* Utility classes to apply the custom fonts */
 .font-header {
-  font-family: cortado, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: "cortado", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* Custom fonts from /fonts folder */
+@font-face {
+  font-family: "62DRAGZ";
+  src: url("/fonts/62DRAGZ.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Akira Expanded";
+  src: url("/fonts/Akira Expanded Demo.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* CSS classes for the custom fonts */
+.font-62dragz {
+  font-family: "62DRAGZ", sans-serif;
+}
+
+.font-akira {
+  font-family: "Akira Expanded", sans-serif;
 }
 
 /* Apply body font globally; headers can opt-in to font-header */
 html, body {
   font-family: "Helvetica Neue", Helvetica, Arial, "Noto Sans JP", system-ui, -apple-system, Segoe UI, Roboto, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
   font-weight: 300;
+}
+
+/* Custom scrollbar styles for homepage content */
+.homepage-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.homepage-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.homepage-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.homepage-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Ensure proper text formatting in prose content */
+.prose strong,
+.prose b {
+  font-weight: 700 !important;
+}
+
+.prose em,
+.prose i {
+  font-style: italic !important;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  font-weight: 700 !important;
+}
+
+.prose blockquote {
+  font-weight: 400 !important;
+  font-style: italic !important;
+}
+
+/* Ensure mobile text formatting works properly */
+@media (max-width: 768px) {
+  .prose strong,
+  .prose b {
+    font-weight: 700 !important;
+  }
+  
+  .prose em,
+  .prose i {
+    font-style: italic !important;
+  }
+  
+  .prose h1,
+  .prose h2,
+  .prose h3,
+  .prose h4,
+  .prose h5,
+  .prose h6 {
+    font-weight: 700 !important;
+  }
+  
+  /* Mobile homepage content padding */
+  .homepage-scroll .max-w-3xl,
+  .homepage-scroll .max-w-5xl {
+    padding-left: 1.5rem; /* 24px */
+    padding-right: 1.5rem; /* 24px */
+  }
+}
+
+/* Extra small mobile screens - more padding */
+@media (max-width: 480px) {
+  .homepage-scroll .max-w-3xl,
+  .homepage-scroll .max-w-5xl {
+    padding-left: 1.25rem; /* 20px */
+    padding-right: 1.25rem; /* 20px */
+  }
+}
+
+/* Very small screens - maximum padding */
+@media (max-width: 375px) {
+  .homepage-scroll .max-w-3xl,
+  .homepage-scroll .max-w-5xl {
+    padding-left: 1rem; /* 16px */
+    padding-right: 1rem; /* 16px */
+  }
 }
 
 /* CRT Scanline Overlay Effect */
@@ -34,15 +150,9 @@ body::before {
   z-index: 9999;
 }
 
-/* Theme-aware scanline opacity */
-body[data-theme="persimmon"]::before {
-  opacity: 0.7;
-}
-
-body[data-theme="matcha"]::before {
-  opacity: 0.7;
-}
-
+/* Theme-aware scanline opacity - consolidated for all themes */
+body[data-theme="persimmon"]::before,
+body[data-theme="matcha"]::before,
 body[data-theme="glacier"]::before {
   opacity: 0.7;
 }
@@ -80,23 +190,31 @@ body::before {
   isolation: isolate; 
 }
 
-/* Expanded tile styles */
+/* Expanded tile styles - base styles */
 .retro-window.expanded {
-  width: 60vw;
-  max-width: 800px;
-  min-width: 600px;
+  width: 80vw;
+  max-width: 1200px;
+  max-height: 80vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* Contact page specific sizing */
 .contact-window .retro-window {
   width: 100%;
-  max-width: min(600px, 80vw);
+  max-width: min(500px, 60vw);
   min-width: 350px;
   height: auto;
   max-height: calc(100vh - 300px);
   min-height: 400px;
   display: flex;
   flex-direction: column;
+}
+
+/* Contact window sizing when nav wheel is expanded */
+.contact-window .retro-window.expanded {
+  max-width: min(400px, 45vw);
+  max-height: calc(100vh - 200px);
 }
 
 /* Make contact window more responsive */
@@ -111,7 +229,7 @@ body::before {
 
 @media (min-width: 1024px) {
   .contact-window .retro-window {
-    max-width: min(700px, 70vw);
+    max-width: min(550px, 50vw);
     max-height: calc(100vh - 250px);
     min-height: 450px;
   }
@@ -119,7 +237,7 @@ body::before {
 
 @media (min-width: 1440px) {
   .contact-window .retro-window {
-    max-width: min(800px, 60vw);
+    max-width: min(600px, 45vw);
     max-height: calc(100vh - 200px);
     min-height: 500px;
   }
@@ -129,10 +247,244 @@ body::before {
   height: 400px;
 }
 
-.retro-window.expanded .retro-desc-wrap {
-  max-height: 200px;
-  overflow-y: auto;
+/* Expanded window image styling */
+.retro-window.expanded .retro-panel-inner {
+  aspect-ratio: 4/3;
+  padding: 0;
 }
+
+.retro-window.expanded .retro-panel-inner .retro-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+
+/* Mobile popup windows */
+@media (max-width: 768px) {
+  .retro-window.expanded {
+    width: 85vw;
+    max-width: 400px;
+    min-width: 280px;
+    max-height: 80vh;
+    margin: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
+  }
+}
+
+/* Extra small mobile screens */
+@media (max-width: 480px) {
+  .retro-window.expanded {
+    width: 90vw;
+    max-width: 320px;
+    min-width: 260px;
+    max-height: 75vh;
+    margin: 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Very small screens (iPhone SE, etc.) */
+@media (max-width: 375px) {
+  .retro-window.expanded {
+    width: 92vw;
+    max-width: 300px;
+    min-width: 240px;
+    max-height: 70vh;
+    margin: 6px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Mobile popup container positioning and overflow prevention */
+@media (max-width: 768px) {
+  .fixed.left-1\/2.top-1\/2 {
+    /* Ensure the container doesn't cause horizontal overflow */
+    max-width: 100vw;
+    max-height: 100vh;
+    /* Add padding to prevent edge touching */
+    padding: 10px;
+    box-sizing: border-box;
+    /* Enable touch scrolling */
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Extra small screens need more padding */
+@media (max-width: 480px) {
+  .fixed.left-1\/2.top-1\/2 {
+    padding: 8px;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Very small screens need minimal padding */
+@media (max-width: 375px) {
+  .fixed.left-1\/2.top-1\/2 {
+    padding: 6px;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Modern tile styles */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Modern content styling for WordPress content */
+.modern-custom-content {
+  color: rgb(55 65 81);
+  line-height: 1.6;
+}
+
+.modern-custom-content h1,
+.modern-custom-content h2,
+.modern-custom-content h3,
+.modern-custom-content h4,
+.modern-custom-content h5,
+.modern-custom-content h6 {
+  color: rgb(17 24 39);
+  font-weight: 600;
+  margin: 1.5rem 0 1rem 0;
+  line-height: 1.3;
+}
+
+.modern-custom-content h1 { font-size: 2rem; }
+.modern-custom-content h2 { font-size: 1.75rem; }
+.modern-custom-content h3 { font-size: 1.5rem; }
+.modern-custom-content h4 { font-size: 1.25rem; }
+.modern-custom-content h5 { font-size: 1.125rem; }
+.modern-custom-content h6 { font-size: 1rem; }
+
+.modern-custom-content p {
+  margin: 1rem 0;
+  color: rgb(55 65 81);
+}
+
+.modern-custom-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.modern-custom-content ul,
+.modern-custom-content ol {
+  margin: 1rem 0;
+  padding-left: 2rem;
+}
+
+.modern-custom-content li {
+  margin: 0.5rem 0;
+  color: rgb(55 65 81);
+}
+
+.modern-custom-content blockquote {
+  border-left: 4px solid rgb(59 130 246);
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: rgb(75 85 99);
+}
+
+.modern-custom-content a {
+  color: rgb(59 130 246);
+  text-decoration: underline;
+}
+
+.modern-custom-content a:hover {
+  color: rgb(37 99 235);
+}
+
+.modern-custom-content code {
+  background: rgb(243 244 246);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.875em;
+}
+
+.modern-custom-content pre {
+  background: rgb(243 244 246);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.modern-custom-content pre code {
+  background: none;
+  padding: 0;
+}
+
+/* Mobile popup content adjustments */
+@media (max-width: 768px) {
+  .retro-window.expanded .retro-titlebar {
+    padding: 6px 12px 6px 8px;
+    font-size: clamp(16px, 4.5vw, 22px);
+  }
+
+  .retro-window.expanded .retro-desc-wrap {
+    padding: 12px;
+    font-size: clamp(12px, 3.5vw, 16px);
+    max-height: none;
+    overflow-y: visible; /* Allow content to expand */
+  }
+
+  .retro-window.expanded .retro-desc {
+    font-size: clamp(12px, 3.5vw, 16px);
+    line-height: 1.4;
+  }
+}
+
+/* Extra small mobile content adjustments */
+@media (max-width: 480px) {
+  .retro-window.expanded .retro-titlebar {
+    padding: 4px 8px 4px 6px;
+    font-size: clamp(14px, 5vw, 18px);
+  }
+
+  .retro-window.expanded .retro-desc-wrap {
+    padding: 8px;
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  .retro-window.expanded .retro-desc {
+    font-size: clamp(11px, 4vw, 14px);
+    line-height: 1.3;
+  }
+}
+
 
 /* Override for contact window to allow full height */
 .contact-window .retro-window.expanded .retro-desc-wrap {
@@ -157,6 +509,37 @@ body::before {
   flex-shrink: 0; /* Don't shrink the title bar */
   border: none; /* Remove border for contact window */
   background: transparent; /* Remove background for contact window */
+}
+
+/* Mobile-specific styles */
+@media (max-width: 767px) {
+  .retro-crt-tile {
+    margin: 0.5rem;
+  }
+  
+  .retro-titlebar {
+    padding: 6px 20px 6px 8px;
+    font-size: clamp(12px, 3.5vw, 16px);
+  }
+  
+  .retro-desc-wrap {
+    padding: 12px;
+  }
+  
+  .retro-desc {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  
+  .retro-button {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+  
+  .retro-button-secondary {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
 }
 
 .contact-window .retro-desc-wrap {
@@ -226,36 +609,52 @@ body::before {
   right: 10px;
 }
 
-.retro-titlebar { background: var(--retro-card); border: 2px solid var(--retro-stroke); border-radius: 0; padding: 8px 40px 8px 12px; position: relative; text-transform: none; letter-spacing: .08em; font-family: "Helvetica Neue", Helvetica, Arial, "Noto Sans JP", system-ui, -apple-system, Segoe UI, Roboto, "Apple Color Emoji", "Segoe UI Emoji", sans-serif; font-weight: 700; font-size: clamp(14px, 2.0vw, 20px); }
+.retro-titlebar { background: var(--retro-card); border: none; border-radius: 0; padding: 8px 40px 8px 12px; position: relative; text-transform: none; letter-spacing: .08em; font-family: "Helvetica Neue", Helvetica, Arial, "Noto Sans JP", system-ui, -apple-system, Segoe UI, Roboto, "Apple Color Emoji", "Segoe UI Emoji", sans-serif; font-weight: 700; font-size: clamp(16px, 2.5vw, 24px); }
 .retro-title { opacity: .95; }
 .retro-close { position: absolute; right: 6px; top: 4px; width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--retro-stroke); background: var(--retro-button); color: var(--retro-button-text); font-weight: 800; font-size: 14px; line-height: 1; box-shadow: 2px 2px 0 0 var(--retro-stroke-2); }
 .retro-close:hover { filter: brightness(.95); transform: translateY(1px); }
-.retro-panel { margin-top: 12px; border: 2px solid var(--retro-stroke); border-radius: 14px; background: var(--retro-card-2); padding: 10px; }
-.retro-panel-inner { position: relative; border-radius: 12px; background: #0b0b0b; padding: 0; overflow: hidden; }
-.retro-image { display: block; width: 100%; height: 200px; object-fit: cover; filter: contrast(.95) saturate(.9); }
+.retro-panel { margin-top: 12px; border: 0.5px solid var(--retro-stroke); border-radius: 14px; background: var(--retro-card-2); padding: 10px; }
+.retro-image { 
+  display: block; 
+  width: 100%; 
+  height: 200px; 
+  object-fit: cover; 
+  filter: contrast(.95) saturate(.9);
+  aspect-ratio: 4/3;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* 4:3 aspect ratio with padding between container and popup walls */
+.retro-panel-inner {
+  position: relative;
+  border-radius: 12px;
+  background: #0b0b0b;
+  padding: 0;
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.retro-panel-inner .retro-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+/* Ensure all retro images fill their containers */
+.retro-image {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
 .retro-image.placeholder { display: grid; place-items: center; color: #888; font-style: italic; }
 .scanlines { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: soft-light; opacity: .50; background: repeating-linear-gradient(to bottom, rgba(255,255,255,.06) 0, rgba(255,255,255,.06) 1px, transparent 2px), radial-gradient(rgba(255,255,255,.05), transparent 60%); }
-.retro-desc-wrap { margin-top: 8px; border: 2px solid var(--retro-stroke); border-radius: 14px; background: var(--retro-card); padding: 12px 14px 16px; position: relative; }
-.retro-quote { position: absolute; left: 14px; top: 8px; font-size: 28px; color: var(--retro-text-dim); }
-.retro-quote.end { position: absolute; right: 14px; bottom: 8px; }
-.retro-desc { margin: 0; color: var(--retro-text); font-size: clamp(10px, 1.2vw, 14px); line-height: 1.4; letter-spacing: .04em; text-transform: uppercase; font-family: "Helvetica Neue", Helvetica, Arial, "Noto Sans JP", system-ui, -apple-system, Segoe UI, Roboto, "Apple Color Emoji", "Segoe UI Emoji", sans-serif; font-weight: 300; }
-.retro-actions { display: flex; gap: 8px; align-items: center; margin-top: 8px; justify-content: center; }
-.retro-btn { border-radius: 12px; border: 2px solid var(--retro-stroke); background: var(--retro-button); color: var(--retro-button-text); padding: 6px 12px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; box-shadow: 3px 3px 0 0 var(--retro-stroke-2); font-size: clamp(10px, 1.1vw, 12px); font-family: "Helvetica Neue", Helvetica, Arial, "Noto Sans JP", system-ui, -apple-system, Segoe UI, Roboto, "Apple Color Emoji", "Segoe UI Emoji", sans-serif; }
-.retro-btn.primary { flex: 1; }
-.retro-btn.secondary { width: 80px; }
-.retro-btn:hover { filter: brightness(.96); transform: translateY(1px); }
-.crt-grid { position: absolute; inset: 6px; border-radius: 12px; pointer-events: none; opacity: .08; background-image: linear-gradient(rgba(0,0,0,.8), rgba(0,0,0,.8)); mix-blend-mode: multiply; }
-.crt-grid::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,.2) 1px, transparent 1px); background-size: 6px 6px; opacity: .7; }
+.retro-desc-wrap { margin-top: 8px; border: 2px solid var(--retro-stroke); border-radius: 14px; background: var(--retro-card); padding: 20px; position: relative; }
+.retro-desc { margin: 0; color: var(--retro-text); font-size: 1rem; line-height: 1.6; font-family: "Helvetica Neue", Helvetica, Arial, "Noto Sans JP", system-ui, -apple-system, Segoe UI, Roboto, "Apple Color Emoji", "Segoe UI Emoji", sans-serif; font-weight: 300; }
 
-/* RetroCRTTile theme integration - uses existing theme variables */
-.retro-window {
-  --retro-bg: var(--bg);
-  --retro-card: var(--accentSoft);
-  --retro-card-2: var(--accent);
-  --retro-stroke: var(--stroke);
-  --retro-stroke-2: rgba(0,0,0,.3);
-  --retro-text: var(--body);
-  --retro-text-dim: var(--body);
-  --retro-button: var(--wheel);
-  --retro-button-text: var(--fg);
-}
